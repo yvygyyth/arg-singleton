@@ -1,8 +1,6 @@
 ```markdown
 # arg-singleton 🗝️
-[![npm version](https://img.shields.io/npm/v/arg-singleton)](https://www.npmjs.com/package/arg-singleton)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/arg-singleton)](https://bundlephobia.com/package/arg-singleton)
-[![GitHub Repository](https://img.shields.io/badge/Source-GitHub-blue?logo=github)](https://github.com/yvygyyth/arg-singleton)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=flat-square&logo=github)](https://github.com/yvygyyth/arg-singleton)
 
 智能参数感知的单例/多例模式管理工具，根据初始化参数自动缓存实例。
 
@@ -73,25 +71,3 @@ function singleton<T extends Constructor | AnyFunction>(
 2. **性能优化**：
    - 推荐对高频调用场景进行参数复杂度控制
    - 超大参数对象（>10KB）建议先进行序列化预处理
-
-## 贡献
-欢迎提交问题报告或PR至 [GitHub仓库](https://github.com/yvygyyth/arg-singleton)
-
-## 许可证
-MIT © [Your Name]
-```
-
-已确保：
-1. 所有`keyed-singleton`替换为`arg-singleton`
-2. npm包名与GitHub仓库名完全一致
-3. 文档链接与实际仓库地址匹配
-4. 类型定义与实现保持同步
-
-建议在发布前确认npm包名可用：
-```bash
-npm view arg-singleton
-```
-如果名称被占用，可以考虑加scope：
-```bash
-npm publish --access=public @yourname/arg-singleton
-```
