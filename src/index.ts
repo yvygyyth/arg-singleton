@@ -1,46 +1,62 @@
 type Constructor<T = any> = new (...args: any[]) => T;
 type AnyFunction<T = any> = (...args: any[]) => T;
 
-/**
- * 参数序列化函数（支持深度对象比较）
- */
-const serializeArgs = (args: unknown[]): string => {
-  const normalized = args.map(arg => {
-    if (typeof arg === 'object' && arg !== null) {
-      return JSON.stringify(arg, Object.keys(arg).sort());
+class ArgsTrie<T> {
+    private root = new Map<any, any>();
+
+    get(args: any[]): T | undefined {
+        let currentMap = this.root;
+        for (const arg of args) {
+            if (!currentMap.has(arg)) return undefined;
+            currentMap = currentMap.get(arg);
+        }
+        return currentMap.get('__instance__');
     }
-    return arg;
-  });
-  return JSON.stringify(normalized);
-};
 
-/**
- * 参数缓存的多例模式
- */
-export function singleton<T extends object>(target: Constructor<T>): Constructor<T>;
-export function singleton<T extends object>(target: AnyFunction<T>): AnyFunction<T>;
-export function singleton<T extends object>(target: Constructor<T> | AnyFunction<T>): Constructor<T> | AnyFunction<T> {
-  const instances = new Map<string, T>();
-
-  return new Proxy(target, {
-    construct(target: Constructor<T>, args: any[]): T {
-      const key = serializeArgs(args);
-      
-      if (!instances.has(key)) {
-        instances.set(key, Reflect.construct(target, args));
-      }
-      
-      return instances.get(key)!;
-    },
-
-    apply(target: AnyFunction<T>, thisArg: any, args: any[]): T {
-      const key = serializeArgs(args);
-      
-      if (!instances.has(key)) {
-        instances.set(key, target.apply(thisArg, args));
-      }
-      
-      return instances.get(key)!;
+    set(args: any[], instance: T): void {
+        let currentMap = this.root;
+        for (const arg of args) {
+            if (!currentMap.has(arg)) {
+                currentMap.set(arg, new Map());
+            }
+            currentMap = currentMap.get(arg);
+        }
+        currentMap.set('__instance__', instance);
     }
-  });
+}
+
+export function singleton<T extends object>(
+    target: Constructor<T>
+): Constructor<T>;
+
+export function singleton<T extends object>(
+    target: AnyFunction<T>
+): AnyFunction<T>;
+
+export function singleton<T extends object>(
+    target: Constructor<T> | AnyFunction<T>
+): Constructor<T> | AnyFunction<T> {
+    const argsTrie = new ArgsTrie<T>();
+
+    return new Proxy(target, {
+        construct(target: Constructor<T>, args: any[]): T {
+            const cached = argsTrie.get(args);
+            if (cached) return cached;
+            const instance = Reflect.construct(target, args);
+            argsTrie.set(args, instance);
+            return instance;
+        },
+
+        apply(target: AnyFunction<T>, thisArg: any, args: any[]): T {
+            const cached = argsTrie.get(args);
+            if (cached) return cached;
+            const instance = target.apply(thisArg, args);
+            argsTrie.set(args, instance);
+            return instance;
+        },
+
+        get(target, prop, receiver) {
+            return Reflect.get(target, prop, receiver);
+        }
+    });
 }

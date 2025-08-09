@@ -6,16 +6,25 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
   },
   "devDependencies": {
-    "vite-plugin-dts": "^4.5.1",
     "typescript": "^5.2.2",
-    "vite": "^5.3.1"
+    "vite": "^5.3.1",
+    "vite-plugin-dts": "^4.5.1",
+    "vitest": "^3.2.4"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
-  "keywords": ["singleton", "proxy"],
+  "keywords": [
+    "singleton",
+    "proxy"
+  ],
   "author": "yuzinan <1589937631@qq.com>",
   "license": "MIT"
 }
